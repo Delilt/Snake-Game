@@ -1,0 +1,244 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <conio.h>
+#include <unistd.h>
+#include <windows.h>
+
+////////////////////////////////////////
+// tasarimda kullanilan ascii kodlari://
+// head: 178                          //
+// wall: 219                          //
+// fruit:254                          //
+// tail: 177                          //
+////////////////////////////////////////
+
+void gotoxy(short x, short y){
+    HANDLE hConsoleOutput;
+    COORD Cursor_Pos = {x-1, y-1};
+
+    hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleCursorPosition(hConsoleOutput, Cursor_Pos);
+}
+
+struct player{
+    char name[7];
+}plyr[5];
+
+int HEAD_x,HEAD_y,fruitx,fruity,point,score,gameEnd,os;
+int boyutX=20,boyutY=60;
+int tailx[100],taily[100];
+int onepiece=0;
+
+void GAME_CONTROLE(){
+
+    int i;
+    int prevx,prevy,prev2x,prev2y;
+    prevx=tailx[0];
+    prevy=taily[0];
+    tailx[0]=HEAD_x;
+    taily[0]=HEAD_y;
+    for(i=1;i<=onepiece;i++){
+        prev2x=tailx[i];
+        prev2y=taily[i];
+        tailx[i]=prevx;
+        taily[i]=prevy;
+        prevx=prev2x;
+        prevy=prev2y;
+
+
+        if(HEAD_y==taily[i+1] && HEAD_x==tailx[i+1]){
+            gameEnd=1;
+            }
+
+        else if(HEAD_y==taily[2] && HEAD_x==tailx[2]){
+            gameEnd=1;
+            }
+}
+    switch(point)         {
+
+            case 1:       {
+            HEAD_x--;
+            break;        }
+
+            case 2:       {
+            HEAD_x++;
+            break;        }
+
+            case 3:       {
+            HEAD_y--;
+            break;        }
+
+            case 4:       {
+            HEAD_y++;
+            break;        }
+                          }
+
+    if(HEAD_y==0 || HEAD_y==boyutY || HEAD_x==0 || HEAD_x==boyutX){
+        gameEnd=1;
+}
+
+    if(HEAD_x==fruitx && HEAD_y==fruity){
+        label3:
+        fruitx=rand()%19;
+        if(fruitx == 0)
+        {goto label3;}
+
+        label4:
+        fruity=rand()%59;
+        if(fruity == 0)
+        {goto label4;}
+
+        score+=10;
+        onepiece++;
+        }
+}
+
+void MOVEMENT_ASSIGNMENT(){
+    if(kbhit()){
+        switch(getch())
+                            {
+            case 'w':       {
+                point=1;
+                break;      }
+            case 72:        {
+                point=1;
+                break;      }
+            case 's':       {
+                point=2;
+                break;      }
+            case 80:        {
+                point=2;
+                break;      }
+            case 'a':       {
+                point=3;
+                break;      }
+            case 75:        {
+                point=3;
+                break;      }
+            case 'd':       {
+                point=4;
+                break;      }
+            case 77:        {
+            point=4;
+            break;          }
+                            }
+            }
+}
+
+void SETUP(){
+    HEAD_x=boyutX-10;
+    HEAD_y=boyutY-10;
+    label1:
+    fruitx=rand()%20;
+    if(fruitx == 0)
+    {goto label1;}
+
+    label2:
+    fruity=rand()%60;
+    if(fruity == 0)
+    {goto label2;}
+
+    gameEnd=0;
+    score=0;
+    onepiece++;
+}
+
+void AREA_DESIGN(){
+    int i,j,k,ch;
+
+ for(i=0;i<=boyutX;i++){
+
+        for ( j = 0; j <=boyutY; j++){
+            gotoxy(j+25,i+8);
+
+            if(i==0 || i==boyutX || j==0 || j==boyutY){
+                printf("%c",219);
+                }
+            else{
+                if(i == HEAD_x && j == HEAD_y){
+                    printf("%c",178);
+                    }
+                else if(i == fruitx && j == fruity){
+                    printf("%c",254);
+                    }
+                else{
+                    ch=0;
+                    for(k=0;k<onepiece;k++){
+                        if(i==tailx[k] && j==taily[k]){
+                            printf("%c",177);
+                            ch=1;
+                            }
+                        }
+                    if(ch==0){
+                        printf(" ");
+                        }
+                    }
+                }
+            }
+        printf("\n");
+        }
+
+    gotoxy(20,4);printf("--------------------------WELCOME TO SNAKE GAME--------------------------");
+    gotoxy(20,5);printf("                      (:GOOD LUCK  LITTLE SNAKE:)                        ");
+    gotoxy(25,7); printf("YOUR SCORE:%d\n",score);
+
+  for(i=0;i<os;i++){
+    gotoxy(25,6); printf("ACTIVE PLAYER = %s",plyr[i].name);
+  }
+ }
+int main(){
+    system("color 2");
+    int i;
+    int c=(int)malloc(boyutX * sizeof(int));
+    int d=(int)malloc(boyutY * sizeof(int));
+
+    FILE *pkayit;
+    pkayit=fopen("DelilTemel-YilanOyunu.txt","w+");
+    printf("oyuncu sayisi giriniz:");scanf("%d",&os);
+    fprintf(pkayit,"\n\n\  * * * * * * Oyuncu Kayýt Arþivi * * * * * *\n\n");
+    fprintf(pkayit,"\t     Ad\t\t  Skor \n");
+    fprintf(pkayit,"\t  -------\t  ------\n");
+
+    for( i=0;i<os;i++){
+        printf("%d. Oyuncu ismini girin:  ",i+1);
+        scanf("%s",plyr[i].name);
+
+        int secim;
+        int HIZ;
+
+        printf("Lutfen zorluk seviyesi seciniz: \n1=kolay \n2=orta \n3=zor \nSeciniz:  ");
+        scanf("%d",&secim);
+        system("cls");
+
+        if(secim == 1)
+            HIZ=100000;
+        else if(secim == 2)
+            HIZ= 50000;
+        else if(secim == 3)
+            HIZ=10000;
+        else
+            HIZ=50000;
+
+         SETUP();
+         score=0;
+ do{
+    AREA_DESIGN();
+    MOVEMENT_ASSIGNMENT();
+    GAME_CONTROLE();
+    usleep(HIZ);
+     }while(gameEnd!=1);
+
+        gotoxy(10,16);
+        printf("\n\t\t\t\t\t\tGAME OVER");
+        sleep(2);
+        onepiece=0;
+        system("cls");
+        fprintf(pkayit,"%d. Oyuncu: [%s]\t  [%d]\n",i+1,plyr[i].name,score);
+    }
+}
+
+
+
+                                          #########DEVELOPED BY DELIL TEMEL #############
+                                          linkedIn/@Deliltemel
+                                          Medium/@Delil844
